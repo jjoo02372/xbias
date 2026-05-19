@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>인지편향 테스트</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap');
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #f5f6fa;
+            --surface: #ffffff;
+            --surface2: #eef0f6;
+            --border: #e0e3ef;
+            --accent: #5b4ef8;
+            --accent-light: #7c6cfc;
+            --accent-glow: rgba(91, 78, 248, 0.12);
+            --text: #1a1a2e;
+            --text-muted: #6b6f8a;
+            --success: #16a34a;
+            --warn: #b45309;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            line-height: 1.6;
+        }
+
+        /* ─── wrapper ─── */
+        #game-wrapper {
+            width: 100%;
+            max-width: 640px;
+        }
+
+        .hidden { display: none !important; }
+
+        /* ─── start screen ─── */
+        #start-screen {
+            text-align: center;
+            padding: 8px 0;
+        }
+
+        .badge {
+            display: inline-block;
+            background: var(--accent-glow);
+            border: 1px solid var(--accent);
+            color: var(--accent-light);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            padding: 5px 14px;
+            border-radius: 100px;
+            margin-bottom: 16px;
+        }
+
+        .hero-title {
+            font-size: clamp(26px, 5.5vw, 38px);
+            font-weight: 900;
+            line-height: 1.2;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #1a1a2e 30%, var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-sub {
+            color: var(--text-muted);
+            font-size: 14px;
+            max-width: 440px;
+            margin: 0 auto 20px;
+        }
+
+        .bias-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .bias-chip {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            padding: 6px 14px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .info-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .info-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 14px 12px;
+        }
+
+        .info-card .ic-num {
+            font-size: 22px;
+            font-weight: 900;
+            color: var(--accent-light);
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .info-card .ic-label {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .q-count-label {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+
+        .name-input-wrap {
+            margin-bottom: 16px;
+        }
+
+        .name-input-wrap label {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        #student-name {
+            width: 100%;
+            max-width: 280px;
+            padding: 12px 16px;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            font-size: 15px;
+            font-family: inherit;
+            color: var(--text);
+            background: var(--surface);
+            outline: none;
+            transition: border-color 0.15s;
+            text-align: center;
+        }
+
+        #student-name:focus {
+            border-color: var(--accent);
+        }
+
+        #student-name::placeholder {
+            color: #bbbccc;
+        }
+
+        #start-button {
+            display: inline-block;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: 14px;
+            padding: 18px 52px;
+            font-size: 17px;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            box-shadow: 0 0 40px var(--accent-glow);
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+
+        #start-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 56px rgba(124, 108, 252, 0.45);
+        }
+
+        #start-button:active {
+            transform: translateY(0);
+        }
+
+        /* ─── quiz screen ─── */
+        #quiz-screen {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .q-label {
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .q-counter {
+            font-size: 13px;
+            color: var(--accent-light);
+            font-weight: 700;
+        }
+
+        .progress-track {
+            height: 4px;
+            background: var(--surface2);
+            border-radius: 100px;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+
+        #progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--accent-light));
+            border-radius: 100px;
+            width: 0%;
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .question-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 20px 22px;
+            margin-bottom: 12px;
+        }
+
+        .scenario-tag {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--accent-light);
+            margin-bottom: 14px;
+            opacity: 0.8;
+        }
+
+        #question-text {
+            font-size: clamp(16px, 3.5vw, 19px);
+            font-weight: 700;
+            line-height: 1.7;
+            word-break: keep-all;
+        }
+
+        #answer-options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .answer-option {
+            background: var(--surface);
+            border: 1.5px solid var(--border);
+            border-radius: 16px;
+            padding: 14px 20px;
+            font-size: 15px;
+            font-family: inherit;
+            color: var(--text);
+            text-align: left;
+            cursor: pointer;
+            line-height: 1.6;
+            word-break: keep-all;
+            transition: border-color 0.15s, background 0.15s, transform 0.1s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .answer-option::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: var(--accent-glow);
+            opacity: 0;
+            transition: opacity 0.15s;
+        }
+
+        .answer-option:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .answer-option:hover::before {
+            opacity: 1;
+        }
+
+        .answer-option:active {
+            transform: translateY(0);
+        }
+
+        /* ─── result screen ─── */
+        #result-screen {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .disclaimer {
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            border-radius: 12px;
+            padding: 10px 16px;
+            font-size: 13px;
+            color: #92400e;
+            text-align: center;
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+
+        .result-header {
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .result-subtitle {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .result-title {
+            font-size: clamp(26px, 6vw, 36px);
+            font-weight: 900;
+            background: linear-gradient(135deg, #1a1a2e 20%, var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .result-section {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 18px 20px;
+            margin-bottom: 10px;
+        }
+
+        .result-section h3 {
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--accent-light);
+            margin-bottom: 8px;
+        }
+
+        .result-section p {
+            font-size: 14px;
+            color: var(--text-muted);
+            line-height: 1.7;
+            word-break: keep-all;
+        }
+
+        .score-bars {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 18px 20px;
+            margin-bottom: 10px;
+        }
+
+        .score-bars h3 {
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--accent-light);
+            margin-bottom: 14px;
+        }
+
+        .bar-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .bar-label {
+            font-size: 13px;
+            color: var(--text-muted);
+            width: 80px;
+            flex-shrink: 0;
+            text-align: right;
+        }
+
+        .bar-track {
+            flex: 1;
+            height: 8px;
+            background: var(--surface2);
+            border-radius: 100px;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            border-radius: 100px;
+            background: linear-gradient(90deg, var(--accent), var(--accent-light));
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .bar-count {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text);
+            width: 20px;
+        }
+
+        #restart-button {
+            width: 100%;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: 14px;
+            padding: 14px;
+            font-size: 15px;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            margin-top: 4px;
+            box-shadow: 0 0 40px var(--accent-glow);
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+
+        #restart-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 56px rgba(124, 108, 252, 0.45);
+        }
+
+        @media (max-width: 480px) {
+            .info-cards { grid-template-columns: repeat(3, 1fr); }
+            .question-card { padding: 24px 20px; }
+            .answer-option { padding: 16px 18px; }
+            .result-section { padding: 22px 18px; }
+            .score-bars { padding: 22px 18px; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="game-wrapper">
+
+    <!-- 시작 화면 -->
+    <div id="start-screen">
+        <span class="badge">Cognitive Bias Test</span>
+        <h1 class="hero-title">인지편향 테스트</h1>
+        <p class="hero-sub">우리는 매일 수백 가지 결정을 내립니다.<br>그 결정들은 과연 완전히 '나의 의지'일까요?</p>
+
+        <p class="q-count-label">총 10문항</p>
+
+        <div class="name-input-wrap">
+            <label for="student-name">이름을 입력하세요</label>
+            <input type="text" id="student-name" placeholder="홍길동" maxlength="20" />
+        </div>
+        <button id="start-button">나의 편향 알아보기</button>
+    </div>
+
+    <!-- 퀴즈 화면 -->
+    <div id="quiz-screen" class="hidden">
+        <div class="quiz-header">
+            <span class="q-label">질문</span>
+            <span class="q-counter" id="q-counter">1 / 10</span>
+        </div>
+        <div class="progress-track">
+            <div id="progress-bar"></div>
+        </div>
+        <div class="question-card">
+            <span class="scenario-tag">상황 제시</span>
+            <p id="question-text"></p>
+        </div>
+        <div id="answer-options"></div>
+    </div>
+
+    <!-- 결과 화면 -->
+    <div id="result-screen" class="hidden"></div>
+
+</div>
+
+<script>
+(function() {
+    const gameWrapper = document.getElementById('game-wrapper');
+    if (!gameWrapper) return;
+
+    const startScreen   = gameWrapper.querySelector('#start-screen');
+    const quizScreen    = gameWrapper.querySelector('#quiz-screen');
+    const resultScreen  = gameWrapper.querySelector('#result-screen');
+    const startButton   = gameWrapper.querySelector('#start-button');
+    const progressBar   = gameWrapper.querySelector('#progress-bar');
+    const qCounter      = gameWrapper.querySelector('#q-counter');
+    const questionText  = gameWrapper.querySelector('#question-text');
+    const answerOptions = gameWrapper.querySelector('#answer-options');
+    const nameInput     = gameWrapper.querySelector('#student-name');
+
+    // ← 여기에 Google Apps Script 배포 URL을 붙여넣으세요
+    const SHEET_URL = 'https://script.google.com/macros/s/AKfycbzDOjsJTxQ69vHIoCkWCaoyH-AO2WsYBu7LpVfbSicfnRWr3c0otPq_EiGVTHr5RJ-J3g/exec';
+
+    let currentQuestionIndex = 0;
+    let scores = {};
+    let studentName = '';
+
+    const questions = [
+        {
+            q: "AI 내비게이션이 '좌회전'을 안내했지만, 직진하면 더 빠를 것 같다. 당신의 선택은?",
+            a: [
+                { t: "AI가 더 많은 데이터를 갖고 있을 테니, 그냥 좌회전한다.", b: "자동화편향" },
+                { t: "내 경험과 현재 도로 상황을 함께 고려해서 직접 판단한다.", b: "합리적" }
+            ]
+        },
+        {
+            q: "AI 채점 시스템이 내 보고서에 낮은 점수를 줬다. 나의 반응은?",
+            a: [
+                { t: "'AI가 틀릴 리 없어. 내 글에 문제가 있겠지.'라며 수정에 들어간다.", b: "알고리즘과신" },
+                { t: "'왜 낮은 점수인지 이유를 파악하고, 내 기준으로도 검토해본다.'", b: "합리적" }
+            ]
+        },
+        {
+            q: "내가 응원하는 스포츠팀에 대한 부정적인 기사를 봤을 때, 나의 반응은?",
+            a: [
+                { t: "'이 기자는 우리 팀을 싫어하는 게 분명해.'라며 기사의 신뢰성을 의심한다.", b: "확증편향" },
+                { t: "'기사의 내용이 사실일 수도 있겠다.'라며 객관적으로 보려고 노력한다.", b: "합리적" }
+            ]
+        },
+        {
+            q: "병원 AI 진단 시스템이 '이상 없음'이라고 했지만, 몸이 계속 불편하다. 당신은?",
+            a: [
+                { t: "'AI가 판단했으니 괜찮겠지.'라며 추가 검진을 포기한다.", b: "알고리즘과신" },
+                { t: "'AI도 오류가 있을 수 있으니 전문의에게 다시 상담한다.'", b: "합리적" }
+            ]
+        },
+        {
+            q: "AI 면접 평가 도구를 도입하자는 제안이 나왔다. 나의 반응은?",
+            a: [
+                { t: "'기계가 사람을 어떻게 평가해? 우리 방식이 더 믿을 만해.'라며 강하게 반대한다.", b: "알고리즘회피" },
+                { t: "'AI 도구의 장단점을 파악하고, 어떻게 활용할지 검토해본다.'", b: "합리적" }
+            ]
+        },
+        {
+            q: "AI 로보어드바이저가 A 펀드를 추천했지만, 뉴스에서 AI 투자 실패 사례를 봤다. 당신은?",
+            a: [
+                { t: "'역시 AI는 믿으면 안 돼. 내가 직접 고를래.'라며 추천을 무시한다.", b: "알고리즘회피" },
+                { t: "'하나의 실패 사례로 전체를 판단하지 말고, 이 AI의 성과 데이터를 살펴본다.'", b: "합리적" }
+            ]
+        },
+        {
+            q: "10만원을 잃어버렸을 때의 상실감과, 길에서 10만원을 주웠을 때의 기쁨 중 무엇이 더 클까?",
+            a: [
+                { t: "잃어버렸을 때의 상실감이 훨씬 더 크게 느껴진다.", b: "손실회피" },
+                { t: "기쁨과 상실감의 크기는 비슷할 것이다.", b: "합리적" }
+            ]
+        },
+        {
+            q: "AI 번역기로 중요한 계약서를 번역했는데, 어색한 표현이 좀 보인다. 당신은?",
+            a: [
+                { t: "'전문 번역가보다 AI가 더 정확할 리 없어. 전문가에게 다시 맡겨야 해.'", b: "알고리즘회피" },
+                { t: "'어색한 부분만 전문가에게 검토받고, 나머지는 AI 번역을 활용한다.'", b: "합리적" }
+            ]
+        },
+        {
+            q: "최신 뉴스에서 상어의 위험성을 본 후, 해수욕장에 가는 것이 두려워졌다. 당신의 생각은?",
+            a: [
+                { t: "'상어에게 공격당할 확률이 매우 낮다는 걸 알지만, 왠지 불안하다.'", b: "가용성편향" },
+                { t: "'자동차 사고 확률이 훨씬 높지.'라며 통계에 근거해 판단한다.", b: "합리적" }
+            ]
+        },
+        {
+            q: "'100% 살코기'라고 적힌 고기와 '1% 지방 함유'라고 적힌 고기가 있다. 당신의 선택은?",
+            a: [
+                { t: "'100% 살코기'가 더 건강하게 느껴져 선택한다.", b: "프레이밍" },
+                { t: "두 고기는 사실상 같으므로, 다른 조건(가격 등)을 비교한다.", b: "합리적" }
+            ]
+        }
+    ];
+
+    const resultsData = {
+        "자동화편향": {
+            title: "자동화 편향",
+            emoji: "🤖",
+            desc: "AI나 자동화 시스템의 판단을 지나치게 신뢰하여, 자신의 경험과 판단을 과소평가하는 경향이 있습니다. 기계가 내린 결정이라면 무조건 옳다고 여기는 것이 대표적인 예입니다.",
+            advice: "AI의 결정은 '참고 의견'이라고 생각하세요. 특히 중요한 결정일수록 'AI가 왜 이렇게 판단했는가?'를 스스로 이해한 후에 받아들이는 습관이 필요합니다."
+        },
+        "알고리즘과신": {
+            title: "알고리즘 과신",
+            emoji: "💻",
+            desc: "AI와 알고리즘의 결과를 무비판적으로 신뢰하여, 오류 가능성이나 한계를 간과하는 경향이 있습니다. AI도 학습 데이터의 한계와 오류를 가진 도구라는 사실을 잊기 쉽습니다.",
+            advice: "AI의 결과물에는 항상 '이 AI는 어떤 데이터로 학습됐을까?', '어떤 상황에서 오류가 날까?'라는 질문을 함께 던져보세요. AI를 보조 도구로 활용하되, 최종 판단은 인간이 내리는 구조를 유지하세요."
+        },
+        "알고리즘회피": {
+            title: "알고리즘 회피",
+            emoji: "🚫",
+            desc: "AI나 알고리즘에 대한 막연한 불신이나 거부감으로, 실제로 도움이 될 수 있는 기술조차 외면하는 경향이 있습니다. 일부 부정적 사례만으로 전체를 판단하는 것이 대표적입니다.",
+            advice: "AI에 대한 막연한 거부감보다, '이 도구가 어떤 부분에서 도움이 되고 어떤 부분에서 한계가 있는가'를 구체적으로 파악하는 것이 중요합니다. 현명한 활용이 무조건적인 거부보다 낫습니다."
+        },
+        "확증편향": {
+            title: "확증 편향",
+            emoji: "🔍",
+            desc: "자신이 이미 가지고 있는 신념이나 가설을 지지하는 정보만 찾고, 그에 반대되는 정보는 무시하거나 외면하는 경향이 강합니다. 보고 싶은 것만 보고 믿고 싶은 것만 믿으려는 뇌의 속성입니다.",
+            advice: "중요한 결정을 내릴 때, 의식적으로 당신의 생각과 '반대되는 증거'를 최소 3가지 이상 찾아보는 습관을 들여보세요. '악마의 변호인' 역할을 자처하는 것이 당신을 더 현명하게 만듭니다."
+        },
+        "손실회피": {
+            title: "손실 회피",
+            emoji: "📉",
+            desc: "같은 크기의 이득에서 얻는 기쁨보다, 손실에서 느끼는 고통을 훨씬 더 크게 느끼는 경향이 있습니다. 10만원을 얻는 것보다 10만원을 잃는 것을 피하려는 마음이 훨씬 강력하게 작용합니다.",
+            advice: "어떤 선택을 할 때, '이것을 하지 않았을 때의 손실'뿐만 아니라, '이것을 했을 때 얻을 수 있는 잠재적 이득'을 의식적으로 함께 저울질해보세요. 관점을 바꾸면 새로운 가능성이 보입니다."
+        },
+        "가용성편향": {
+            title: "가용성 편향",
+            emoji: "📰",
+            desc: "최근에 봤거나, 언론에서 자주 다뤄져서 머릿속에 쉽게 떠오르는 정보를 바탕으로 전체를 판단하는 경향이 있습니다. 비행기 사고 뉴스를 본 후 비행기 타는 것을 두려워하는 것이 대표적인 예입니다.",
+            advice: "어떤 판단을 내리기 전에, '내가 지금 내리는 판단의 근거가 혹시 최근에 본 뉴스나 특정 사례 하나에 불과한 것은 아닐까?'라고 자문해보세요. 실제 통계나 데이터를 찾아보는 것이 도움이 됩니다."
+        },
+        "프레이밍": {
+            title: "프레이밍 효과",
+            emoji: "🖼️",
+            desc: "똑같은 정보라도 어떤 방식으로 제시되느냐(프레임)에 따라 당신의 판단이 크게 달라지는 경향이 있습니다. '100% 살코기'와 '1% 지방 함유'는 같은 말이지만, 긍정적인 프레임에 더 쉽게 끌립니다.",
+            advice: "어떤 정보를 접했을 때, 의식적으로 그 정보가 반대의 프레임으로 제시될 경우를 생각해보세요. (예: 성공률 90% → 실패율 10%) 이는 프레임의 영향력에서 벗어나 본질을 보는 데 도움이 됩니다."
+        },
+        "합리적": {
+            title: "균형 잡힌 합리성",
+            emoji: "⚖️",
+            desc: "AI와 알고리즘에 대해 맹목적으로 신뢰하지도, 무조건 거부하지도 않으며 균형 잡힌 시각으로 판단하는 능력이 뛰어납니다. AI를 도구로서 현명하게 활용할 줄 아는 사람입니다.",
+            advice: "AI 시대에 꼭 필요한 비판적 수용 능력을 갖추고 있습니다. 이 능력을 주변에 나누어, 더 많은 사람들이 AI를 현명하게 활용할 수 있도록 돕는 역할을 해보세요."
+        }
+    };
+
+    const biasColors = {
+        "자동화편향": "#818cf8",
+        "알고리즘과신": "#60a5fa",
+        "알고리즘회피": "#f472b6",
+        "확증편향": "#c084fc",
+        "손실회피": "#fb923c",
+        "가용성편향": "#facc15",
+        "프레이밍": "#4ade80"
+    };
+
+    function startGame() {
+        const name = nameInput.value.trim();
+        if (!name) {
+            nameInput.focus();
+            nameInput.style.borderColor = '#f87171';
+            nameInput.placeholder = '이름을 입력해주세요';
+            return;
+        }
+        nameInput.style.borderColor = '';
+        studentName = name;
+        currentQuestionIndex = 0;
+        scores = {};
+        startScreen.classList.add('hidden');
+        resultScreen.classList.add('hidden');
+        quizScreen.classList.remove('hidden');
+        showQuestion();
+    }
+
+    function sendToSheets(name, primary, allScores) {
+        if (!SHEET_URL || SHEET_URL === 'YOUR_APPS_SCRIPT_URL_HERE') return;
+        const payload = {
+            name,
+            result: primary,
+            scores: JSON.stringify(allScores),
+            timestamp: new Date().toLocaleString('ko-KR')
+        };
+        fetch(SHEET_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        }).catch(() => {});
+    }
+
+    function showQuestion() {
+        if (currentQuestionIndex >= questions.length) {
+            showResult();
+            return;
+        }
+        const q = questions[currentQuestionIndex];
+        const pct = ((currentQuestionIndex + 1) / questions.length) * 100;
+
+        progressBar.style.width = `${pct}%`;
+        qCounter.textContent = `${currentQuestionIndex + 1} / ${questions.length}`;
+        questionText.textContent = q.q;
+
+        answerOptions.innerHTML = '';
+        q.a.forEach(opt => {
+            const button = document.createElement('button');
+            button.className = 'answer-option';
+            button.textContent = opt.t;
+            button.onclick = () => selectAnswer(opt.b, button);
+            answerOptions.appendChild(button);
+        });
+    }
+
+    function selectAnswer(bias, btn) {
+        // 선택 시 버튼 비활성화 후 전환 (연타 방지)
+        answerOptions.querySelectorAll('.answer-option').forEach(b => b.disabled = true);
+        btn.style.borderColor = 'var(--accent)';
+        btn.style.background = 'rgba(124,108,252,0.15)';
+
+        scores[bias] = (scores[bias] || 0) + 1;
+        currentQuestionIndex++;
+
+        setTimeout(showQuestion, 260);
+    }
+
+    function showResult() {
+        quizScreen.classList.add('hidden');
+        resultScreen.classList.remove('hidden');
+
+        const rawScores = Object.assign({}, scores);
+        delete scores["합리적"];
+
+        const sortedScores = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+        const primary = sortedScores.length > 0 ? sortedScores[0][0] : "합리적";
+
+        sendToSheets(studentName, primary, rawScores);
+        const resultData = resultsData[primary];
+
+        // 점수 바 HTML 생성
+        const maxScore = sortedScores.length > 0 ? sortedScores[0][1] : 1;
+        const barRows = sortedScores.map(([bias, count]) => {
+            const pct = Math.round((count / maxScore) * 100);
+            const color = biasColors[bias] || 'var(--accent)';
+            return `
+                <div class="bar-row">
+                    <span class="bar-label">${bias}</span>
+                    <div class="bar-track">
+                        <div class="bar-fill" data-pct="${pct}" style="width:0%; background: linear-gradient(90deg, ${color}aa, ${color});"></div>
+                    </div>
+                    <span class="bar-count">${count}</span>
+                </div>`;
+        }).join('');
+
+        const scoreBarsHTML = sortedScores.length > 0 ? `
+            <div class="score-bars">
+                <h3>편향별 반응 분포</h3>
+                ${barRows}
+            </div>` : '';
+
+        resultScreen.innerHTML = `
+            <div class="disclaimer">인지 편향은 인간의 자연스러운 사고 과정의 일부이며, 지능과는 무관합니다.</div>
+            <div class="result-header">
+                <p class="result-subtitle">당신의 주된 생각의 함정은</p>
+                <h2 class="result-title">${resultData.emoji} ${resultData.title}</h2>
+            </div>
+            <div class="result-section">
+                <h3>나의 인지 편향은?</h3>
+                <p>${resultData.desc}</p>
+            </div>
+            <div class="result-section">
+                <h3>함정에서 벗어나는 법</h3>
+                <p>${resultData.advice}</p>
+            </div>
+            ${scoreBarsHTML}
+            <button id="restart-button">테스트 다시하기</button>
+        `;
+
+        // 바 애니메이션
+        requestAnimationFrame(() => {
+            resultScreen.querySelectorAll('.bar-fill').forEach(bar => {
+                const pct = bar.dataset.pct;
+                setTimeout(() => { bar.style.width = pct + '%'; }, 100);
+            });
+        });
+
+        document.getElementById('restart-button').addEventListener('click', () => {
+            resultScreen.classList.add('hidden');
+            startScreen.classList.remove('hidden');
+        });
+    }
+
+    startButton.addEventListener('click', startGame);
+})();
+</script>
+</body>
+</html>
